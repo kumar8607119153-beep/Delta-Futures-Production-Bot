@@ -2082,26 +2082,13 @@ else:
 # ============================================================
 
 st.markdown(
-    f"""
-    <div style="
-        margin-top: 5px;
-        margin-bottom: 15px;
-        font-size: 22px;
-        line-height: 1.55;
-    ">
-        <span>
-            5-Min Closed Candle Buyer %:
-            <b>{closed_candle_buyer_percent:.2f}%</b>
-        </span>
-
-        <span>
-            5-Min Closed Candle Seller %:
-            <b>{closed_candle_seller_percent:.2f}%</b>
-        </span>
-    </div>
-    """,
-    unsafe_allow_html=True
+    f"""<div style="margin-top: 5px; margin-bottom: 15px; font-size: 22px; line-height: 1.55;">
+    <div>5-Min Closed Candle Buyer %: <b>{closed_candle_buyer_percent:.2f}%</b></div>
+    <div>5-Min Closed Candle Seller %: <b>{closed_candle_seller_percent:.2f}%</b></div>
+</div>""",
+    unsafe_allow_html=True,
 )
+
 
 
 # ============================================================
