@@ -2038,15 +2038,26 @@ st.metric(
 # ============================================================
 
 st.markdown(
-    f"""<div style="margin-top: 5px; margin-bottom: 15px; font-size: 22px; line-height: 1.55;">
-    <div>5-Min Closed Candle Buyer %: <b>{closed_candle_buyer_percent:.2f}%</b></div>
-    <div>5-Min Closed Candle Seller %: <b>{closed_candle_seller_percent:.2f}%</b></div>
-    <hr style="margin: 8px 0; border: 0.5px solid #ddd;">
-    <div>1-Min Closed Candle Buyer %: <b>{closed_candle_1m_buyer_percent:.2f}%</b></div>
-    <div>1-Min Closed Candle Seller %: <b>{closed_candle_1m_seller_percent:.2f}%</b></div>
-</div>""",
+    f"""
+    <div style="
+        margin-top: 5px;
+        margin-bottom: 15px;
+        font-size: 22px;
+        line-height: 1.55;
+    ">
+        <span>
+            5-Min Closed Candle Buyer %:
+            <b>{closed_candle_buyer_percent}</b>
+        </span>
+        <span>
+            5-Min Closed Candle Seller %:
+            <b>{closed_candle_seller_percent}</b>
+        </span>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
+
 
 
 # ============================================================
