@@ -1822,7 +1822,8 @@ if len(signal_rows) >= 1:
     latest_signal_time = int(latest_signal["time"])
 
     if True:
-        bucket = trade_collector.get_bucket(latest_signal_time)
+        current_candle_time = (int(time.time()) // CANDLE_SECONDS) * CANDLE_SECONDS
+bucket = trade_collector.get_bucket(current_candle_time)
 
         buy_volume = float(bucket.get("BUY", 0.0))
         sell_volume = float(bucket.get("SELL", 0.0))
