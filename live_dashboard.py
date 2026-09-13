@@ -2047,6 +2047,9 @@ st.markdown(
     ">
         <div>Buyer %: <b>{st.session_state["signal_buyer_percent"]:.2f}%</b></div>
         <div>Seller %: <b>{st.session_state["signal_seller_percent"]:.2f}%</b></div>
+        <div style="margin-top: 10px;">1-Min Closed Candle Buyer %: <b>{m1_closed_candle_buyer_percent:.2f}%</b></div>
+        <div>1-Min Closed Candle Seller %: <b>{m1_closed_candle_seller_percent:.2f}%</b></div>
+
     </div>
     """,
     unsafe_allow_html=True
