@@ -1988,6 +1988,50 @@ with c3:
         show_price(current_supertrend)
     )
 
+# ============================================================
+# NEW LIVE MARKET PRICE — TOP DISPLAY
+# ============================================================
+
+ticker_response = api.ticker()
+
+ticker_result = get_result(
+    ticker_response
+)
+
+if isinstance(ticker_result, dict):
+
+    live_price = None
+
+    for key in [
+        "close",
+        "last_price",
+        "mark_price",
+        "spot_price"
+    ]:
+
+        value = number(
+            ticker_result.get(key)
+        )
+
+        if value is not None:
+            live_price = value
+            break
+
+else:
+    live_price = None
+
+
+# ============================================================
+# DISPLAY LIVE MARKET PRICE
+# ============================================================
+
+st.header("💰 LIVE MARKET PRICE")
+
+st.metric(
+    "BTCUSD",
+    show_price(live_price)
+)
+
 
 # ============================================================
 # BUYER / SELLER %
