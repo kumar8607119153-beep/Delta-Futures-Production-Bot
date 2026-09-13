@@ -2081,7 +2081,7 @@ else:
 # DISPLAY — 5-MIN CLOSED CANDLE %
 # ============================================================
 
-st.html(
+st.markdown(
     f"""
     <div style="
         margin-top: 5px;
