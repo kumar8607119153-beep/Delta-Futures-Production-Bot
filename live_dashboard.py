@@ -1825,9 +1825,7 @@ if len(signal_rows) >= 1:
         st.session_state["buyer_seller_signal_time"]
         != latest_signal_time
     ):
-        bucket = trade_collector.get_bucket(
-            latest_signal_time
-        )
+        bucket = trade_collector.get_bucket(latest_signal_time)
 
         buy_volume = float(bucket.get("BUY", 0.0))
         sell_volume = float(bucket.get("SELL", 0.0))
