@@ -2038,22 +2038,16 @@ st.metric(
 # ============================================================
 
 st.markdown(
-    f"""
-    <div style="
-        margin-top: 5px;
-        margin-bottom: 15px;
-        font-size: 22px;
-        line-height: 1.55;
-    ">
-        <div>Buyer %: <b>{st.session_state["signal_buyer_percent"]:.2f}%</b></div>
-        <div>Seller %: <b>{st.session_state["signal_seller_percent"]:.2f}%</b></div>
-        <div style="margin-top: 10px;">1-Min Closed Candle Buyer %: <b>{m1_closed_candle_buyer_percent:.2f}%</b></div>
-        <div>1-Min Closed Candle Seller %: <b>{m1_closed_candle_seller_percent:.2f}%</b></div>
-
-    </div>
-    """,
-    unsafe_allow_html=True
+    f"""<div style="margin-top: 5px; margin-bottom: 15px; font-size: 22px; line-height: 1.55;">
+    <div>5-Min Closed Candle Buyer %: <b>{closed_candle_buyer_percent:.2f}%</b></div>
+    <div>5-Min Closed Candle Seller %: <b>{closed_candle_seller_percent:.2f}%</b></div>
+    <hr style="margin: 8px 0; border: 0.5px solid #ddd;">
+    <div>1-Min Closed Candle Buyer %: <b>{closed_candle_1m_buyer_percent:.2f}%</b></div>
+    <div>1-Min Closed Candle Seller %: <b>{closed_candle_1m_seller_percent:.2f}%</b></div>
+</div>""",
+    unsafe_allow_html=True,
 )
+
 
 # ============================================================
 # 5-MINUTE CLOSED CANDLE BUYER % / SELLER %
