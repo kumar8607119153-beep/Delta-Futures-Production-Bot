@@ -2052,6 +2052,57 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# ============================================================
+# 5-MINUTE CLOSED CANDLE BUYER % / SELLER %
+# ============================================================
+
+closed_candle = df.iloc[-1]
+
+candle_high = float(closed_candle["high"])
+candle_low = float(closed_candle["low"])
+candle_close = float(closed_candle["close"])
+
+candle_range = candle_high - candle_low
+
+if candle_range > 0:
+    closed_candle_buyer_percent = (
+        (candle_close - candle_low) / candle_range
+    ) * 100.0
+
+    closed_candle_seller_percent = (
+        (candle_high - candle_close) / candle_range
+    ) * 100.0
+else:
+    closed_candle_buyer_percent = 50.0
+    closed_candle_seller_percent = 50.0
+
+
+# ============================================================
+# DISPLAY — 5-MIN CLOSED CANDLE %
+# ============================================================
+
+st.markdown(
+    f"""
+    <div style="
+        margin-top: 5px;
+        margin-bottom: 15px;
+        font-size: 22px;
+        line-height: 1.55;
+    ">
+        <div>
+            5-Min Closed Candle Buyer %:
+            <b>{closed_candle_buyer_percent:.2f}%</b>
+        </div>
+
+        <div>
+            5-Min Closed Candle Seller %:
+            <b>{closed_candle_seller_percent:.2f}%</b>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # ============================================================
 # CURRENT ENTRY
