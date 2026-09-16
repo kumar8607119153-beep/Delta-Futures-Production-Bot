@@ -2228,5 +2228,109 @@ components.html(
 # END OF PART 1
 # PART 2 = CANDLE + SUPERTREND ENGINE
 # ============================================================
+# ============================================================
+# 📊 LIST OF TRADES - DEMO TRADING HISTORY PANEL
+# ============================================================
+
+st.divider()
+st.header("📋 LIST OF TRADES — DEMO TRADING HISTORY")
+
+st.caption(
+    "यह पैनल आपके सुपरट्रेंड सिग्नल्स और कैंडल के हाई/लो के आधार पर "
+    "ट्रेड नंबर, टाइप, एंट्री/एग्जिट समय, कीमत, और नेट P&L का पूरा रिकॉर्ड दिखाता है।"
+)
+
+# डेमो ट्रेड्स को स्टोर करने के लिए Session State
+if "demo_trades_list" not in st.session_state:
+    st.session_state["demo_trades_list"] = []
+
+if "processed_trade_keys" not in st.session_state:
+    st.session_state["processed_trade_keys"] = set()
+
+# यदि सिग्नल डेटा उपलब्ध है, तो सभी सिग्नल्स से ट्रेड लिस्ट तैयार करें
+if 'signal_rows' in locals() and not signal_rows.empty:
+    
+    trade_counter = len(st.session_state["demo_trades_list"]) + 1
+    
+    for idx, sig_row in signal_rows.iterrows():
+        sig_time_ts = int(sig_row["time"])
+        sig_time_str = indian_time(sig_time_ts)
+        sig_type = "Long 🟢" if sig_row["SIGNAL"] == "BUY" else "Short 🔴"
+        sig_base_price = float(sig_row["close"])
+        
+        trade_unique_key = f"{sig_time_ts}_{sig_row['SIGNAL']}"
+        
+        if trade_unique_key not in st.session_state["processed_trade_keys"]:
+            
+            current_buy_offset = float(buy_offset) if 'buy_offset' in locals() else -50
+            current_sell_offset = float(sell_offset) if 'sell_offset' in locals() else 50
+            
+            if sig_row["SIGNAL"] == "BUY":
+                entry_price = sig_base_price + current_buy_offset
+                target_price = entry_price + (t1_points if 't1_points' in locals() else 300)
+            else:
+                entry_price = sig_base_price + current_sell_offset
+                target_price = entry_price - (t1_points if 't1_points' in locals() else 300)
+
+            # कैंडल डेटा से चेक करें कि ट्रेड फिल हुई या टारगेट हिट हुआ
+            sub_df = df.loc[idx:].copy()
+            
+            status = "Open / Running 🔵"
+            exit_time_str = "-"
+            net_pnl = 0.0
+            
+            for c_idx, row in sub_df.iterrows():
+                c_high = float(row["high"])
+                c_low = float(row["low"])
+                c_time_str = indian_time(row["time"])
+                
+                if sig_row["SIGNAL"] == "BUY":
+                    if c_low <= entry_price:
+                        # एंट्री मिल गई, अब टारगेट चेक करें
+                        if c_high >= target_price:
+                            status = "Closed (Target Hit) ✅"
+                            exit_time_str = c_time_str
+                            net_pnl = float(t1_points if 't1_points' in locals() else 300)
+                            break
+                elif sig_row["SIGNAL"] == "SELL":
+                    if c_high >= entry_price:
+                        if c_low <= target_price:
+                            status = "Closed (Target Hit) ✅"
+                            exit_time_str = c_time_str
+                            net_pnl = float(t1_points if 't1_points' in locals() else 300)
+                            break
+
+            # लिस्ट में जोड़ें (ट्रेड नंबर के साथ)
+            st.session_state["demo_trades_list"].insert(0, {
+                "Trade number": len(st.session_state["demo_trades_list"]) + 1,
+                "Type": sig_type,
+                "Entry Time": sig_time_str,
+                "Entry Price": show_price(entry_price),
+                "Exit Time": exit_time_str,
+                "Exit Status": status,
+                "Size": int(order_size) if 'order_size' in locals() else 1,
+                "Net PnL": f"{net_pnl:+,.2f} USDT"
+            })
+            
+            st.session_state["processed_trade_keys"].add(trade_unique_key)
+
+# टेबल के रूप में डिस्प्ले करें
+if st.session_state["demo_trades_list"]:
+    trades_df = pd.DataFrame(st.session_state["demo_trades_list"])
+    
+    # कुल PnL समरी मेट्रिक्स
+    total_trades_count = len(trades_df)
+    
+    st.markdown(f"**Total Recorded Trades:** {total_trades_count}")
+    st.dataframe(trades_df, use_container_width=True, hide_index=True)
+else:
+    st.info("ट्रेड हिस्ट्री लोड हो रही है...")
+
+# ============================================================
+# सबसे नीचे ये दो लाइनें रहेंगी
+# ============================================================
+time.sleep(REFRESH_SECONDS)
+st.rerun()
+
 time.sleep(REFRESH_SECONDS)
 st.rerun()
