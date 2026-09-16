@@ -2228,5 +2228,106 @@ components.html(
 # END OF PART 1
 # PART 2 = CANDLE + SUPERTREND ENGINE
 # ============================================================
+# ============================================================
+# 📊 DEMO TRADING HISTORY & BACKTEST SIMULATOR (ALWAYS RUNNING)
+# ============================================================
+
+st.divider()
+st.header("🧪 DEMO TRADING HISTORY (AUTOMATIC PAPER TRADING)")
+
+st.caption(
+    "यह डेमो हिस्ट्री पूरी तरह स्वतंत्र और स्वचालित है। यह बिना किसी बटन के "
+    "पीछे के सभी सिग्नल्स और उनकी लिमिट फिलिंग (Limit Filling) का रिकॉर्ड "
+    "निरंतर आगे और पीछे की हिस्ट्री के रूप में दिखाती है।"
+)
+
+# डेमो ट्रेड्स को स्टोर करने के लिए Session State (परमानेंट स्टोरेज)
+if "demo_trades" not in st.session_state:
+    st.session_state["demo_trades"] = []
+
+if "processed_signal_keys" not in st.session_state:
+    st.session_state["processed_signal_keys"] = set()
+
+# सिग्नल रोज़ (Signal Rows) से पिछले और नए सभी सिग्नल्स की जाँच करें
+if 'signal_rows' in locals() and not signal_rows.empty:
+    
+    # सभी सिग्नल्स को लूप के माध्यम से चेक करें ताकि पुरानी और नई पूरी हिस्ट्री बनी रहे
+    for idx, sig_row in signal_rows.iterrows():
+        sig_time_str = indian_time(sig_row["time"])
+        sig_type = sig_row["SIGNAL"]
+        sig_base_price = float(sig_row["close"])
+        
+        # एक यूनीक की ताकि एक ही सिग्नल बार-बार डुप्लीकेट न हो
+        sig_unique_key = f"{sig_time_str}_{sig_type}"
+        
+        if sig_unique_key not in st.session_state["processed_signal_keys"]:
+            
+            # लिमिट ओफ़्सेट कैलकुलेट करें
+            current_buy_offset = float(buy_offset) if 'buy_offset' in locals() else -50
+            current_sell_offset = float(sell_offset) if 'sell_offset' in locals() else 50
+            
+            if sig_type == "BUY":
+                demo_limit_price = sig_base_price + current_buy_offset
+                d_t1 = demo_limit_price + (t1_points if 't1_points' in locals() else 300)
+                d_t2 = demo_limit_price + (t2_points if 't2_points' in locals() else 600)
+                d_t3 = demo_limit_price + (t3_points if 't3_points' in locals() else 900)
+            else:
+                demo_limit_price = sig_base_price + current_sell_offset
+                d_t1 = demo_limit_price - (t1_points if 't1_points' in locals() else 300)
+                d_t2 = demo_limit_price - (t2_points if 't2_points' in locals() else 600)
+                d_t3 = demo_limit_price - (t3_points if 't3_points' in locals() else 900)
+
+            # सिग्नल के बाद की कैंडल में चेक करें कि क्या प्राइस लिमिट तक आया था या नहीं
+            sub_df = df.loc[idx:].copy()
+            
+            entry_filled = False
+            fill_time = "-"
+            
+            for c_idx, row in sub_df.iterrows():
+                c_high = float(row["high"])
+                c_low = float(row["low"])
+                
+                if sig_type == "BUY":
+                    if c_low <= demo_limit_price:
+                        entry_filled = True
+                        fill_time = indian_time(row["time"])
+                        break
+                elif sig_type == "SELL":
+                    if c_high >= demo_limit_price:
+                        entry_filled = True
+                        fill_time = indian_time(row["time"])
+                        break
+                        
+            # डेमो ट्रेड लिस्ट में जोड़ें (क्रमानुसार आगे और पीछे की हिस्ट्री)
+            st.session_state["demo_trades"].append({
+                "Signal Time": sig_time_str,
+                "Type": sig_type,
+                "Base Price": show_price(sig_base_price),
+                "Limit Price": show_price(demo_limit_price),
+                "Status": "FILLED 🟢" if entry_filled else "PENDING / MISSED ⏳",
+                "Filled At": fill_time,
+                "Target 1": show_price(d_t1),
+                "Target 2": show_price(d_t2),
+                "Target 3": show_price(d_t3)
+            })
+            
+            st.session_state["processed_signal_keys"].add(sig_unique_key)
+
+# डेमो हिस्ट्री टेबल हमेशा स्क्रीन पर दिखाई देगी (बिना किसी बटन के)
+if st.session_state["demo_trades"]:
+    demo_df = pd.DataFrame(st.session_state["demo_trades"])
+    # उल्टे क्रम में दिखाएं ताकि सबसे नया सिग्नल सबसे ऊपर रहे, और पुरानी हिस्ट्री नीचे रहे
+    st.dataframe(demo_df.iloc[::-1], use_container_width=True, hide_index=True)
+else:
+    st.info("डेमो हिस्ट्री लोड हो रही है...")
+
+
+# ============================================================
+# END OF PART 1
+# PART 2 = CANDLE + SUPERTREND ENGINE
+# ============================================================
+time.sleep(REFRESH_SECONDS)
+st.rerun()
+    
 time.sleep(REFRESH_SECONDS)
 st.rerun()
