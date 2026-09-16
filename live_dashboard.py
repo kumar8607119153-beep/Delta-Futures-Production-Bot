@@ -2228,5 +2228,144 @@ components.html(
 # END OF PART 1
 # PART 2 = CANDLE + SUPERTREND ENGINE
 # ============================================================
+# ============================================================
+# 📊 ADVANCED 200+ TRADES DEMO BACKTEST & PERFORMANCE PANEL
+# ============================================================
+
+st.divider()
+st.header("🧪 ADVANCED DEMO BACKTEST & PERIOD PERFORMANCE PANEL")
+
+st.caption(
+    "यह पैनल पिछले 200+ सिग्नल्स की गहरी ऐतिहासिक (Historical) बैकटेस्ट हिस्ट्री, "
+    "कुल दिन, प्रति दिन का औसत, और विस्तृत P&L ट्रैक रिकॉर्ड स्वचालित रूप से दिखाता है।"
+)
+
+# डेमो ट्रेड्स को स्टोर करने के लिए Session State
+if "demo_trades" not in st.session_state:
+    st.session_state["demo_trades"] = []
+
+if "processed_signal_keys_all" not in st.session_state:
+    st.session_state["processed_signal_keys_all"] = set()
+
+# यदि सिग्नल डेटा उपलब्ध है, तो पिछले सभी सिग्नल्स (लंबी हिस्ट्री के लिए) को प्रोसेस करें
+if 'signal_rows' in locals() and not signal_rows.empty:
+    
+    # पिछले सभी सिग्नल्स को लूप में चलाएं (ताकि 200+ ट्रेड्स या पूरी उपलब्ध हिस्ट्री कवर हो सके)
+    for idx, sig_row in signal_rows.iterrows():
+        sig_time_ts = int(sig_row["time"])
+        sig_time_str = indian_time(sig_time_ts)
+        sig_type = sig_row["SIGNAL"]
+        sig_base_price = float(sig_row["close"])
+        
+        sig_unique_key = f"{sig_time_ts}_{sig_type}"
+        
+        if sig_unique_key not in st.session_state["processed_signal_keys_all"]:
+            
+            current_buy_offset = float(buy_offset) if 'buy_offset' in locals() else -50
+            current_sell_offset = float(sell_offset) if 'sell_offset' in locals() else 50
+            
+            if sig_type == "BUY":
+                demo_limit_price = sig_base_price + current_buy_offset
+                d_t1 = demo_limit_price + (t1_points if 't1_points' in locals() else 300)
+            else:
+                demo_limit_price = sig_base_price + current_sell_offset
+                d_t1 = demo_limit_price - (t1_points if 't1_points' in locals() else 300)
+
+            # सिग्नल के बाद के डेटा से चेक करें कि लिमिट फिल हुई या टारगेट हिट हुआ
+            sub_df = df.loc[idx:].copy()
+            
+            entry_filled = False
+            fill_time = "-"
+            trade_status = "PENDING / MISSED ⏳"
+            trade_pnl = 0.0
+            
+            for c_idx, row in sub_df.iterrows():
+                c_high = float(row["high"])
+                c_low = float(row["low"])
+                
+                if sig_type == "BUY":
+                    if c_low <= demo_limit_price:
+                        entry_filled = True
+                        fill_time = indian_time(row["time"])
+                        if c_high >= d_t1:
+                            trade_status = "TARGET 1 HIT 🟢"
+                            trade_pnl = float(t1_points if 't1_points' in locals() else 300)
+                            break
+                        else:
+                            trade_status = "FILLED (RUNNING) 🔵"
+                    
+                elif sig_type == "SELL":
+                    if c_high >= demo_limit_price:
+                        entry_filled = True
+                        fill_time = indian_time(row["time"])
+                        if c_low <= d_t1:
+                            trade_status = "TARGET 1 HIT 🟢"
+                            trade_pnl = float(t1_points if 't1_points' in locals() else 300)
+                            break
+                        else:
+                            trade_status = "FILLED (RUNNING) 🔵"
+                            
+            st.session_state["demo_trades"].append({
+                "Timestamp": sig_time_ts,
+                "Signal Date & Time": sig_time_str,
+                "Type": sig_type,
+                "Limit Price": show_price(demo_limit_price),
+                "Status": trade_status,
+                "Filled At": fill_time,
+                "Target 1": show_price(d_t1),
+                "P&L (Points)": float(trade_pnl)
+            })
+            
+            st.session_state["processed_signal_keys_all"].add(sig_unique_key)
+
+# ============================================================
+# 📊 PERIOD & PERFORMANCE SUMMARY METRICS
+# ============================================================
+if st.session_state["demo_trades"]:
+    demo_df = pd.DataFrame(st.session_state["demo_trades"])
+    
+    # पुराने से नए के क्रम में व्यवस्थित करें
+    demo_df = demo_df.sort_values(by="Timestamp", ascending=False).reset_index(drop=True)
+    
+    total_trades = len(demo_df)
+    filled_trades = len(demo_df[demo_df["Status"] != "PENDING / MISSED ⏳"])
+    total_pnl_points = demo_df["P&L (Points)"].sum()
+    
+    # दिन और समयावधि (Period Days) कैलकुलेशन
+    if total_trades > 0:
+        oldest_ts = demo_df["Timestamp"].min()
+        newest_ts = demo_df["Timestamp"].max()
+        duration_seconds = newest_ts - oldest_ts
+        total_days = max(1, round(duration_seconds / 86400, 1)) # सेकंड्स को दिनों में बदला
+    else:
+        total_days = 1
+
+    avg_trades_per_day = round(total_trades / total_days, 1)
+
+    # मेट्रिक्स पैनल (डिफरेंट कॉलम्स)
+    m1, m2, m3, m4, m5 = st.columns(5)
+    with m1:
+        st.metric("TOTAL TRADES", f"{total_trades} (Hist)")
+    with m2:
+        st.metric("PERIOD DAYS", f"{total_days} Days")
+    with m3:
+        st.metric("TRADES / DAY", avg_trades_per_day)
+    with m4:
+        st.metric("TOTAL P&L", f"{total_pnl_points:,.2f}")
+    with m5:
+        st.metric("STATUS", "ACTIVE 🟢")
+
+    st.markdown("### 📋 Complete Trade History (200+ / All Records)")
+    
+    # डिस्प्ले के लिए इम्प्रूव्ड टेबल फॉर्मेट (Timestamp कॉलम छिपाकर)
+    display_df = demo_df.drop(columns=["Timestamp"])
+    display_df["P&L (Points)"] = display_df["P&L (Points)"].apply(lambda x: f"{x:,.2f}")
+    
+    st.dataframe(display_df, use_container_width=True, hide_index=True)
+else:
+    st.info("बैकटेस्ट और डेमो हिस्ट्री लोड हो रही है...")
+
+# ============================================================
+
 time.sleep(REFRESH_SECONDS)
 st.rerun()
