@@ -2228,5 +2228,149 @@ components.html(
 # END OF PART 1
 # PART 2 = CANDLE + SUPERTREND ENGINE
 # ============================================================
+# ============================================================
+# 📊 REAL LOGIC-BASED TRADES & EXIT HISTORY PANEL
+# ============================================================
+
+st.divider()
+st.header("📋 REAL LOGIC-BASED TRADE HISTORY & EXIT ENGINE")
+
+st.caption(
+    "यह इंजन प्रत्येक ट्रेड की प्रविष्टि (Entry) से लेकर उसके लक्ष्यों (Target 1, 2, 3) "
+    "या सुपरट्रेंड रिवर्सल (Supertrend Exit) तक के पूरे चक्र का सटीक और तार्किक हिसाब रखता है।"
+)
+
+if "demo_trades_list" not in st.session_state:
+    st.session_state["demo_trades_list"] = []
+
+if "processed_trade_keys_logic" not in st.session_state:
+    st.session_state["processed_trade_keys_logic"] = set()
+
+if 'signal_rows' in locals() and not signal_rows.empty:
+    
+    for idx, sig_row in signal_rows.iterrows():
+        sig_time_ts = int(sig_row["time"])
+        sig_time_str = indian_time(sig_time_ts)
+        sig_type_raw = sig_row["SIGNAL"]
+        sig_type_display = "Long 🟢" if sig_type_raw == "BUY" else "Short 🔴"
+        sig_base_price = float(sig_row["close"])
+        
+        trade_unique_key = f"{sig_time_ts}_{sig_type_raw}"
+        
+        if trade_unique_key not in st.session_state["processed_trade_keys_logic"]:
+            
+            current_buy_offset = float(buy_offset) if 'buy_offset' in locals() else -50
+            current_sell_offset = float(sell_offset) if 'sell_offset' in locals() else 50
+            
+            # पॉइंट्स वैल्यूज सेट करें
+            p_t1 = float(t1_points if 't1_points' in locals() else 300)
+            p_t2 = float(t2_points if 't2_points' in locals() else 600)
+            p_t3 = float(t3_points if 't3_points' in locals() else 900)
+            
+            if sig_type_raw == "BUY":
+                entry_price = sig_base_price + current_buy_offset
+                t1_price = entry_price + p_t1
+                t2_price = entry_price + p_t2
+                t3_price = entry_price + p_t3
+            else:
+                entry_price = sig_base_price + current_sell_offset
+                t1_price = entry_price - p_t1
+                t2_price = entry_price - p_t2
+                t3_price = entry_price - p_t3
+
+            # सिग्नल के बाद के डेटा से कैंडल-दर-कैंडल असली लॉजिक चेक करें
+            sub_df = df.loc[idx:].copy()
+            
+            status = "Open / Running 🔵"
+            exit_time_str = "-"
+            net_pnl = 0.0
+            hit_label = "None"
+            
+            entry_matched = False
+            
+            for c_idx, row in sub_df.iterrows():
+                c_high = float(row["high"])
+                c_low = float(row["low"])
+                c_close = float(row["close"])
+                c_time_str = indian_time(row["time"])
+                
+                # चेक करें कि क्या कैंडल ने एंट्री प्राइस को छुआ (Fill हुई)
+                if not entry_matched:
+                    if sig_type_raw == "BUY" and c_low <= entry_price:
+                        entry_matched = True
+                    elif sig_type_raw == "SELL" and c_high >= entry_price:
+                        entry_matched = True
+                
+                if entry_matched:
+                    # यदि एंट्री मिल चुकी है, तो टारगेट्स चेक करें (T3 -> T2 -> T1)
+                    if sig_type_raw == "BUY":
+                        if c_high >= t3_price:
+                            status = "Closed (Target 3 Hit) ✅✅✅"
+                            exit_time_str = c_time_str
+                            net_pnl = p_t3
+                            break
+                        elif c_high >= t2_price:
+                            status = "Closed (Target 2 Hit) ✅✅"
+                            exit_time_str = c_time_str
+                            net_pnl = p_t2
+                            break
+                        elif c_high >= t1_price:
+                            status = "Closed (Target 1 Hit) ✅"
+                            exit_time_str = c_time_str
+                            net_pnl = p_t1
+                            break
+                    else: # SELL / SHORT
+                        if c_low <= t3_price:
+                            status = "Closed (Target 3 Hit) ✅✅✅"
+                            exit_time_str = c_time_str
+                            net_pnl = p_t3
+                            break
+                        elif c_low <= t2_price:
+                            status = "Closed (Target 2 Hit) ✅✅"
+                            exit_time_str = c_time_str
+                            net_pnl = p_t2
+                            break
+                        elif c_low <= t1_price:
+                            status = "Closed (Target 1 Hit) ✅"
+                            exit_time_str = c_time_str
+                            net_pnl = p_t1
+                            break
+                            
+                    # अगर अपोजिट सुपरट्रेंड सिग्नल मिल जाए तो ट्रेड वहीं क्लोज मानेंगे
+                    if "SIGNAL" in row and row["SIGNAL"] != sig_type_raw and row["SIGNAL"] in ["BUY", "SELL"]:
+                        status = "Closed (Supertrend Exit) ⏹️"
+                        exit_time_str = c_time_str
+                        if sig_type_raw == "BUY":
+                            net_pnl = c_close - entry_price
+                        else:
+                            net_pnl = entry_price - c_close
+                        break
+
+            st.session_state["demo_trades_list"].insert(0, {
+                "Trade No": len(st.session_state["demo_trades_list"]) + 1,
+                "Type": sig_type_display,
+                "Entry Time": sig_time_str,
+                "Entry Price": show_price(entry_price),
+                "Exit Time": exit_time_str,
+                "Exit Status": status,
+                "Size": int(order_size) if 'order_size' in locals() else 1,
+                "Net PnL": f"{net_pnl:+,.2f}"
+            })
+            
+            st.session_state["processed_trade_keys_logic"].add(trade_unique_key)
+
+if st.session_state["demo_trades_list"]:
+    trades_df = pd.DataFrame(st.session_state["demo_trades_list"])
+    st.markdown(f"**Total Logic-Checked Trades:** {len(trades_df)}")
+    st.dataframe(trades_df, use_container_width=True, hide_index=True)
+else:
+    st.info("ट्रेड हिस्ट्री लोड हो रही है...")
+
+# ============================================================
+# सबसे नीचे ये दो लाइनें रहेंगी
+# ============================================================
+time.sleep(REFRESH_SECONDS)
+st.rerun()
+        
 time.sleep(REFRESH_SECONDS)
 st.rerun()
