@@ -49,21 +49,21 @@ REMOTE_TRADING = (
 # ============================================================
 
 DEFAULT_BUY_OFFSET = int(
-    os.getenv("BUY_OFFSET", "-50")
+    os.getenv("BUY_OFFSET", "-75")
 )
 
 DEFAULT_SELL_OFFSET = int(
-    os.getenv("SELL_OFFSET", "50")
+    os.getenv("SELL_OFFSET", "75")
 )
 
 DEFAULT_ORDER_SIZE = int(
-    os.getenv("ORDER_SIZE", "1")
+    os.getenv("ORDER_SIZE", "0001")
 )
 
 # LIMIT pending रहने के बाद कितने seconds में MARKET करना है.
 # 0 = automatic MARKET conversion बंद.
 DEFAULT_LIMIT_TIMEOUT = int(
-    os.getenv("LIMIT_TIMEOUT", "60")
+    os.getenv("LIMIT_TIMEOUT", "6000")
 )
 
 TARGET_1 = int(os.getenv("TARGET_1", "300"))
