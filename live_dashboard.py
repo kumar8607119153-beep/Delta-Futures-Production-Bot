@@ -34,7 +34,7 @@ CANDLE_SECONDS = 300
 ATR_PERIOD = 10
 MULTIPLIER = 3.0
 
-REFRESH_SECONDS = 5
+REFRESH_SECONDS = 10
 
 # ============================================================
 # REAL TRADING MASTER SWITCH
