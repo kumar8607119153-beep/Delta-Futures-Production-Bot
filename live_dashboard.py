@@ -2581,11 +2581,11 @@ components.html(
     """
     <div
         class="tradingview-widget-container"
-        style="height:100vh;width:100%;">
+        style="height:700vh;width:100%;">
 
         <div
             class="tradingview-widget-container__widget"
-            style="height:100%;width:100%;">
+            style="height:700%;width:100%;">
         </div>
 
         <script
@@ -2613,7 +2613,7 @@ components.html(
         </script>
     </div>
     """,
-    height=1900,
+    height=700,
     scrolling=False
 )
 
