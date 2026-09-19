@@ -2779,7 +2779,7 @@ with r1:
         "BUY LIMIT OFFSET",
         value=DEFAULT_BUY_OFFSET,
         step=10,
-        help="Example: -50 means signal price se 50 points neeche."
+        help="Example: -100 means signal price se 50 points neeche."
     )
 
 
@@ -2789,7 +2789,7 @@ with r2:
         "SELL LIMIT OFFSET",
         value=DEFAULT_SELL_OFFSET,
         step=10,
-        help="Example: +50 means signal price se 50 points upar."
+        help="Example: +100 means signal price se 50 points upar."
     )
 
 
