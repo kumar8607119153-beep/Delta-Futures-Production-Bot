@@ -2613,7 +2613,7 @@ components.html(
         </script>
     </div>
     """,
-    height=1200,
+    height=1900,
     scrolling=False
 )
 
