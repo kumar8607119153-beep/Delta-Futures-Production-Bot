@@ -49,11 +49,11 @@ REMOTE_TRADING = (
 # ============================================================
 
 DEFAULT_BUY_OFFSET = int(
-    os.getenv("BUY_OFFSET", "-50")
+    os.getenv("BUY_OFFSET", "-150")
 )
 
 DEFAULT_SELL_OFFSET = int(
-    os.getenv("SELL_OFFSET", "50")
+    os.getenv("SELL_OFFSET", "150")
 )
 
 # ============================================================
@@ -79,10 +79,10 @@ DEFAULT_ORDER_SIZE = int(round(_total_contracts))
 # LIMIT pending रहने के बाद कितने seconds में MARKET करना है.
 # 0 = automatic MARKET conversion बंद.
 DEFAULT_LIMIT_TIMEOUT = int(
-    os.getenv("LIMIT_TIMEOUT", "60")
+    os.getenv("LIMIT_TIMEOUT", "60000000")
 )
 
-TARGET_1 = int(os.getenv("TARGET_1", "300"))
+TARGET_1 = int(os.getenv("TARGET_1", "200"))
 TARGET_2 = int(os.getenv("TARGET_2", "600"))
 TARGET_3 = int(os.getenv("TARGET_3", "900"))
 
@@ -2669,11 +2669,11 @@ components.html(
     """
     <div
         class="tradingview-widget-container"
-        style="height:100vh;width:100%;">
+        style="height:700vh;width:100%;">
 
         <div
             class="tradingview-widget-container__widget"
-            style="height:100%;width:100%;">
+            style="height:700%;width:100%;">
         </div>
 
         <script
@@ -2682,7 +2682,9 @@ components.html(
             async>
 
         {
-            "autosize": true,
+            
+            "autosize": false,
+            "height": 700,
             "symbol": "BINANCE:BTCUSDT",
             "interval": "5",
             "timezone": "Asia/Kolkata",
