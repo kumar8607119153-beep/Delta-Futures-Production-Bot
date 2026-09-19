@@ -2594,7 +2594,9 @@ components.html(
             async>
 
         {
-            "autosize": true,
+            
+            "autosize": false,
+            "height": 700,
             "symbol": "BINANCE:BTCUSDT",
             "interval": "5",
             "timezone": "Asia/Kolkata",
