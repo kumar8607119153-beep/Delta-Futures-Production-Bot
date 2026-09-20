@@ -2825,6 +2825,15 @@ components.html(
             "theme": "dark",
             "style": "1",
             "locale": "en",
+            "studies": [
+    {
+        "id": "SuperTrend@tv-basicstudies",
+        "inputs": {
+            "length": 10,
+            "factor": 3
+        }
+    }
+],
             "enable_publishing": false,
             "allow_symbol_change": true,
             "hide_top_toolbar": false,
