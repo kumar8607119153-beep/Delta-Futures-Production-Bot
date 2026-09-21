@@ -87,9 +87,9 @@ DEFAULT_LIMIT_TIMEOUT = int(
     os.getenv("LIMIT_TIMEOUT", "6000000")
 )
 
-TARGET_1 = int(os.getenv("TARGET_1", "300"))
-TARGET_2 = int(os.getenv("TARGET_2", "600"))
-TARGET_3 = int(os.getenv("TARGET_3", "900"))
+TARGET_1 = int(os.getenv("TARGET_1", "3000"))
+TARGET_2 = int(os.getenv("TARGET_2", "6000"))
+TARGET_3 = int(os.getenv("TARGET_3", "9000"))
 
 
 # ============================================================
