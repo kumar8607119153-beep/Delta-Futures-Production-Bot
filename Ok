@@ -1012,3 +1012,852 @@ def get_confirmed_signal():
 # ============================================================
 # POSITION
 # ============================================================
+# ============================================================
+# POSITION
+# ============================================================
+
+def get_position():
+
+    data = signed_request(
+        "GET",
+        "/v2/positions",
+        {
+            "product_id":
+                PRODUCT_ID
+        }
+    )
+
+    result = data.get(
+        "result",
+        data
+    )
+
+    if isinstance(
+        result,
+        list
+    ):
+
+        result = next(
+            (
+                item
+                for item in result
+                if int(
+                    item.get(
+                        "product_id",
+                        PRODUCT_ID
+                    )
+                ) == PRODUCT_ID
+            ),
+            {}
+        )
+
+    if not isinstance(
+        result,
+        dict
+    ):
+
+        return 0, Decimal("0")
+
+    try:
+
+        size = int(
+            Decimal(
+                str(
+                    result.get(
+                        "size",
+                        0
+                    )
+                )
+            )
+        )
+
+    except Exception:
+
+        size = 0
+
+    try:
+
+        entry_price = Decimal(
+            str(
+                result.get(
+                    "entry_price",
+                    "0"
+                )
+            )
+        )
+
+    except Exception:
+
+        entry_price = Decimal("0")
+
+    return size, entry_price
+
+
+# ============================================================
+# OPEN ORDERS
+# ============================================================
+
+def get_open_orders():
+
+    data = signed_request(
+        "GET",
+        "/v2/orders",
+        {
+            "product_ids":
+                str(PRODUCT_ID),
+
+            "states":
+                "open,pending",
+
+            "page_size":
+                50
+        }
+    )
+
+    result = data.get(
+        "result",
+        []
+    )
+
+    if not isinstance(
+        result,
+        list
+    ):
+        return []
+
+    return result
+
+
+# ============================================================
+# BOT ENTRY CHECK
+# ============================================================
+
+def is_bot_entry(order):
+
+    client_id = str(
+        order.get(
+            "client_order_id",
+            ""
+        )
+    )
+
+    return (
+        client_id.startswith("ENTBUY_")
+        or
+        client_id.startswith("ENTSELL_")
+    )
+
+
+# ============================================================
+# ORDER GET
+# ============================================================
+
+def get_order(order_id):
+
+    data = signed_request(
+        "GET",
+        f"/v2/orders/{int(order_id)}"
+    )
+
+    return data.get(
+        "result",
+        data
+    )
+
+
+# ============================================================
+# CANCEL ORDER
+# ============================================================
+
+def cancel_order(order):
+
+    order_id = int(
+        order["id"]
+    )
+
+    side = str(
+        order.get(
+            "side",
+            ""
+        )
+    ).upper()
+
+    price = order.get(
+        "limit_price",
+        ""
+    )
+
+    quantity = order.get(
+        "size",
+        ""
+    )
+
+    log("")
+    log(
+        "=================================================="
+    )
+    log(
+        "CANCEL LIMIT ORDER"
+    )
+    log(
+        "ORDER ID    :",
+        order_id
+    )
+    log(
+        "SIDE        :",
+        side
+    )
+    log(
+        "LIMIT PRICE :",
+        price
+    )
+    log(
+        "QUANTITY    :",
+        quantity
+    )
+    log(
+        "=================================================="
+    )
+
+    record(
+        "ORDER_CANCEL_REQUEST",
+        symbol=SYMBOL,
+        side=side,
+        quantity=quantity,
+        price=price,
+        order_id=order_id,
+        message="SuperTrend reversal"
+    )
+
+    signed_request(
+        "DELETE",
+        "/v2/orders",
+        body={
+            "id":
+                order_id,
+
+            "product_id":
+                PRODUCT_ID
+        }
+    )
+
+    deadline = time.time() + 10
+
+    while time.time() < deadline:
+
+        try:
+
+            current = get_order(
+                order_id
+            )
+
+            state = str(
+                current.get(
+                    "state",
+                    ""
+                )
+            ).lower()
+
+            if state in (
+                "cancelled",
+                "canceled",
+                "closed"
+            ):
+
+                log(
+                    "CANCEL CONFIRMED",
+                    "| ORDER ID:",
+                    order_id,
+                    "| STATUS:",
+                    state.upper()
+                )
+
+                record(
+                    "ORDER_CANCELLED",
+                    symbol=SYMBOL,
+                    side=side,
+                    quantity=quantity,
+                    price=price,
+                    order_id=order_id,
+                    order_state=state
+                )
+
+                return
+
+        except Exception as e:
+
+            log(
+                "CANCEL CHECK:",
+                str(e)
+            )
+
+        time.sleep(1)
+
+    raise RuntimeError(
+        f"Cancel not confirmed: {order_id}"
+    )
+
+
+# ============================================================
+# CLIENT ORDER ID
+# ============================================================
+
+def new_client_id(prefix):
+
+    return (
+        prefix
+        + str(
+            int(
+                time.time() * 1000
+            )
+        )
+    )[:32]
+
+
+# ============================================================
+# PLACE LIMIT ENTRY
+# ============================================================
+
+def place_limit_entry(
+    signal_data
+):
+
+    signal_value = signal_data[
+        "signal"
+    ]
+
+    signal_close = signal_data[
+        "close"
+    ]
+
+    if signal_value == "BUY":
+
+        side = "buy"
+
+        limit_price = (
+            signal_close
+            - ENTRY_OFFSET
+        )
+
+        prefix = "ENTBUY_"
+
+        offset = "-50"
+
+    else:
+
+        side = "sell"
+
+        limit_price = (
+            signal_close
+            + ENTRY_OFFSET
+        )
+
+        prefix = "ENTSELL_"
+
+        offset = "+50"
+
+    limit_price = round_price(
+        limit_price
+    )
+
+    client_id = new_client_id(
+        prefix
+    )
+
+    payload = {
+        "product_id":
+            PRODUCT_ID,
+
+        "product_symbol":
+            SYMBOL,
+
+        "limit_price":
+            price_str(limit_price),
+
+        "size":
+            int(ENTRY_SIZE),
+
+        "side":
+            side,
+
+        "order_type":
+            "limit_order",
+
+        "time_in_force":
+            "gtc",
+
+        "reduce_only":
+            False,
+
+        "post_only":
+            False,
+
+        "client_order_id":
+            client_id
+    }
+
+    log("")
+    log(
+        "=================================================="
+    )
+    log(
+        "REAL LIMIT ORDER"
+    )
+    log(
+        "=================================================="
+    )
+    log(
+        "SYMBOL       :",
+        SYMBOL
+    )
+    log(
+        "SIDE         :",
+        signal_value
+    )
+    log(
+        "ORDER TYPE   :",
+        "LIMIT"
+    )
+    log(
+        "QUANTITY     :",
+        ENTRY_SIZE
+    )
+    log(
+        "SIGNAL PRICE :",
+        price_str(signal_close)
+    )
+    log(
+        "ENTRY OFFSET :",
+        offset
+    )
+    log(
+        "LIMIT PRICE  :",
+        price_str(limit_price)
+    )
+    log(
+        "TIME IN FORCE:",
+        "GTC"
+    )
+    log(
+        "REDUCE ONLY  :",
+        "FALSE"
+    )
+    log(
+        "POST ONLY    :",
+        "FALSE"
+    )
+    log(
+        "CLIENT ID    :",
+        client_id
+    )
+    log(
+        "PUBLIC IP    :",
+        RUNNER_IP
+    )
+    log(
+        "=================================================="
+    )
+
+    record(
+        "LIMIT_ORDER_REQUEST",
+        symbol=SYMBOL,
+        side=signal_value,
+        signal=signal_value,
+        price=str(limit_price),
+        signal_close=str(signal_close),
+        entry_price=str(limit_price),
+        quantity=ENTRY_SIZE,
+        candle_id=signal_data[
+            "candle_id"
+        ],
+        trend=signal_data[
+            "trend"
+        ],
+        runner_ip=RUNNER_IP
+    )
+
+    result_data = signed_request(
+        "POST",
+        "/v2/orders",
+        body=payload
+    )
+
+    result = result_data.get(
+        "result",
+        result_data
+    )
+
+    order_id = None
+    state = ""
+
+    if isinstance(
+        result,
+        dict
+    ):
+
+        order_id = result.get(
+            "id"
+        )
+
+        state = result.get(
+            "state",
+            ""
+        )
+
+    log("")
+    log(
+        "LIMIT ORDER SENT"
+    )
+    log(
+        "ORDER ID     :",
+        order_id
+    )
+    log(
+        "SIDE         :",
+        signal_value
+    )
+    log(
+        "QUANTITY     :",
+        ENTRY_SIZE
+    )
+    log(
+        "LIMIT PRICE  :",
+        price_str(limit_price)
+    )
+    log(
+        "STATUS       :",
+        state or "ACCEPTED"
+    )
+
+    record(
+        "LIMIT_ORDER_SENT",
+        symbol=SYMBOL,
+        side=signal_value,
+        signal=signal_value,
+        price=str(limit_price),
+        signal_close=str(signal_close),
+        entry_price=str(limit_price),
+        quantity=ENTRY_SIZE,
+        order_id=order_id,
+        order_state=state,
+        candle_id=signal_data[
+            "candle_id"
+        ],
+        runner_ip=RUNNER_IP,
+        message=json.dumps(
+            result,
+            ensure_ascii=False,
+            default=str
+        )[:3000]
+    )
+
+    return result
+
+
+# ============================================================
+# SIGNAL PROCESS
+# ============================================================
+
+def process_signal(
+    signal_data,
+    open_orders,
+    position_size
+):
+
+    if not signal_data:
+        return
+
+    signal_value = signal_data.get(
+        "signal"
+    )
+
+    if not signal_value:
+        return
+
+    # Existing real position
+    if position_size != 0:
+
+        log(
+            "SIGNAL IGNORED"
+        )
+
+        log(
+            "SIGNAL:",
+            signal_value
+        )
+
+        log(
+            "POSITION:",
+            position_size
+        )
+
+        record(
+            "SIGNAL_IGNORED_POSITION",
+            symbol=SYMBOL,
+            signal=signal_value,
+            position_size=position_size
+        )
+
+        return
+
+    entries = [
+        order
+        for order in open_orders
+        if is_bot_entry(order)
+    ]
+
+    # Same direction -> no duplicate
+    if entries:
+
+        existing_side = str(
+            entries[0].get(
+                "side",
+                ""
+            )
+        ).upper()
+
+        if existing_side == signal_value:
+
+            log(
+                "DUPLICATE BLOCKED"
+            )
+
+            log(
+                "EXISTING:",
+                existing_side
+            )
+
+            log(
+                "SIGNAL:",
+                signal_value
+            )
+
+            return
+
+        # Opposite signal -> cancel old
+        log("")
+        log(
+            "=================================================="
+        )
+        log(
+            "SUPERTREND REVERSAL"
+        )
+        log(
+            "OLD ORDER:",
+            existing_side
+        )
+        log(
+            "NEW SIGNAL:",
+            signal_value
+        )
+        log(
+            "=================================================="
+        )
+
+        record(
+            "SUPERTREND_REVERSAL",
+            symbol=SYMBOL,
+            signal=signal_value,
+            message=(
+                f"old={existing_side}, "
+                f"new={signal_value}"
+            )
+        )
+
+        for order in entries:
+            cancel_order(
+                order
+            )
+
+        # Verify cancellation
+        open_orders = get_open_orders()
+
+        remaining = [
+            order
+            for order in open_orders
+            if is_bot_entry(order)
+        ]
+
+        if remaining:
+
+            raise RuntimeError(
+                "Old order still open; "
+                "new order not sent"
+            )
+
+    place_limit_entry(
+        signal_data
+    )
+
+
+# ============================================================
+# STATE
+# ============================================================
+
+def load_state():
+
+    if not os.path.exists(
+        STATE_FILE
+    ):
+
+        return {
+            "last_candle": None,
+            "last_position": 0,
+            "last_entry_price": "0"
+        }
+
+    try:
+
+        with open(
+            STATE_FILE,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            return json.load(f)
+
+    except Exception:
+
+        return {
+            "last_candle": None,
+            "last_position": 0,
+            "last_entry_price": "0"
+        }
+
+
+def save_state(state):
+
+    temp = STATE_FILE + ".tmp"
+
+    with open(
+        temp,
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            state,
+            f,
+            indent=2
+        )
+
+    os.replace(
+        temp,
+        STATE_FILE
+    )
+
+
+# ============================================================
+# CONNECTION TEST
+# ============================================================
+
+def connection_test():
+
+    log("")
+    log(
+        "=================================================="
+    )
+    log(
+        "DELTA API CONNECTION"
+    )
+    log(
+        "=================================================="
+    )
+
+    # API credentials are NEVER printed.
+    log(
+        "API KEY    : HIDDEN"
+    )
+
+    log(
+        "API SECRET : HIDDEN"
+    )
+
+    log(
+        "PUBLIC IP  :",
+        RUNNER_IP
+    )
+
+    log(
+        "BASE URL   :",
+        BASE_URL
+    )
+
+    try:
+
+        public_get(
+            f"/v2/products/{SYMBOL}"
+        )
+
+        log(
+            "PUBLIC API : CONNECTED"
+        )
+
+    except Exception as e:
+
+        log(
+            "PUBLIC API : FAILED"
+        )
+
+        log(
+            "ERROR:",
+            str(e)
+        )
+
+        raise
+
+    try:
+
+        position_size, entry_price = (
+            get_position()
+        )
+
+        log(
+            "PRIVATE API: CONNECTED"
+        )
+
+        log(
+            "STATUS     : CONNECTED"
+        )
+
+        log(
+            "POSITION   :",
+            position_size
+        )
+
+        log(
+            "ENTRY      :",
+            entry_price
+        )
+
+        record(
+            "API_CONNECTED",
+            symbol=SYMBOL,
+            runner_ip=RUNNER_IP,
+            position_size=position_size,
+            entry_price=str(entry_price)
+        )
+
+    except Exception as e:
+
+        log(
+            "PRIVATE API: FAILED"
+        )
+
+        log(
+            "STATUS     : FAILED"
+        )
+
+        log(
+            "ERROR      :",
+            str(e)
+        )
+
+        record(
+            "API_CONNECTION_FAILED",
+            symbol=SYMBOL,
+            runner_ip=RUNNER_IP,
+            message=str(e)
+        )
+
+        raise
