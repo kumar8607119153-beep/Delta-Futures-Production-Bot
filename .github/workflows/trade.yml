@@ -27,15 +27,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pandas python-dotenv
 
-      - name: Show runner public IP
-        run: |
-          echo "=========================================="
-          echo "GITHUB RUNNER PUBLIC IP"
-          echo "=========================================="
-          curl -s https://api.ipify.org
-          echo
-          echo "=========================================="
-
       - name: Run Delta Futures Production Bot
         env:
           DELTA_API_KEY: ${{ secrets.OWNER_API_KEY }}
