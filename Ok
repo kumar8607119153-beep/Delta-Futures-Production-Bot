@@ -1861,3 +1861,382 @@ def connection_test():
         )
 
         raise
+# ============================================================
+# MAIN
+# ============================================================
+
+def main():
+
+    global STOP
+
+    require_credentials()
+
+    get_runner_ip()
+
+    load_product()
+
+    connection_test()
+
+    state = load_state()
+
+    previous_orders = []
+
+    previous_position = 0
+
+    last_heartbeat = 0
+
+    log("")
+    log(
+        "=================================================="
+    )
+    log(
+        "1-MINUTE PRODUCTION TRADING STARTED"
+    )
+    log(
+        "SYMBOL       :",
+        SYMBOL
+    )
+    log(
+        "TIMEFRAME    :",
+        "1m"
+    )
+    log(
+        "ATR          :",
+        ATR_PERIOD
+    )
+    log(
+        "MULTIPLIER   :",
+        ST_MULTIPLIER
+    )
+    log(
+        "BUY ENTRY    :",
+        "CLOSE - 50"
+    )
+    log(
+        "SELL ENTRY   :",
+        "CLOSE + 50"
+    )
+    log(
+        "TP           :",
+        "DISABLED"
+    )
+    log(
+        "QUANTITY     :",
+        ENTRY_SIZE
+    )
+    log(
+        "PUBLIC IP    :",
+        RUNNER_IP
+    )
+    log(
+        "=================================================="
+    )
+
+    record(
+        "BOT_STARTED",
+        symbol=SYMBOL,
+        runner_ip=RUNNER_IP,
+        message="1-minute production trading started"
+    )
+
+    while not STOP:
+
+        try:
+
+            # ------------------------------------------------
+            # POSITION
+            # ------------------------------------------------
+
+            position_size, entry_price = (
+                get_position()
+            )
+
+            if position_size != previous_position:
+
+                log(
+                    "POSITION CHANGE:",
+                    previous_position,
+                    "->",
+                    position_size
+                )
+
+                record(
+                    "POSITION_CHANGE",
+                    symbol=SYMBOL,
+                    position_size=position_size,
+                    entry_price=str(
+                        entry_price
+                    ),
+                    message=(
+                        f"{previous_position}"
+                        f"->{position_size}"
+                    )
+                )
+
+                previous_position = (
+                    position_size
+                )
+
+            state[
+                "last_position"
+            ] = position_size
+
+            state[
+                "last_entry_price"
+            ] = str(
+                entry_price
+            )
+
+            # ------------------------------------------------
+            # OPEN ORDERS
+            # ------------------------------------------------
+
+            open_orders = (
+                get_open_orders()
+            )
+
+            # ------------------------------------------------
+            # PRICE
+            # ------------------------------------------------
+
+            current_price = None
+
+            try:
+
+                current_price = (
+                    get_current_price()
+                )
+
+            except Exception as e:
+
+                log(
+                    "PRICE ERROR:",
+                    str(e)
+                )
+
+            # ------------------------------------------------
+            # HEARTBEAT
+            # ------------------------------------------------
+
+            now = time.time()
+
+            if (
+                now - last_heartbeat
+                >= HEARTBEAT_SECONDS
+            ):
+
+                log("")
+                log(
+                    "HEARTBEAT"
+                )
+                log(
+                    "BTCUSD      :",
+                    current_price
+                )
+                log(
+                    "POSITION    :",
+                    position_size
+                )
+                log(
+                    "ENTRY       :",
+                    entry_price
+                )
+                log(
+                    "OPEN ORDERS :",
+                    len(open_orders)
+                )
+                log(
+                    "API STATUS  :",
+                    "CONNECTED"
+                )
+                log(
+                    "PUBLIC IP   :",
+                    RUNNER_IP
+                )
+
+                record(
+                    "HEARTBEAT",
+                    symbol=SYMBOL,
+                    current_price=str(
+                        current_price
+                    )
+                    if current_price is not None
+                    else "",
+                    position_size=position_size,
+                    entry_price=str(
+                        entry_price
+                    ),
+                    runner_ip=RUNNER_IP,
+                    message=(
+                        f"open_orders="
+                        f"{len(open_orders)}"
+                    )
+                )
+
+                last_heartbeat = now
+
+            # ------------------------------------------------
+            # 1-MIN CLOSED CANDLE SIGNAL
+            # ------------------------------------------------
+
+            signal_data = (
+                get_confirmed_signal()
+            )
+
+            if signal_data:
+
+                candle_id = (
+                    signal_data[
+                        "candle_id"
+                    ]
+                )
+
+                last_candle = (
+                    state.get(
+                        "last_candle"
+                    )
+                )
+
+                # Signal processed once only
+                if candle_id != last_candle:
+
+                    state[
+                        "last_candle"
+                    ] = candle_id
+
+                    save_state(
+                        state
+                    )
+
+                    process_signal(
+                        signal_data,
+                        open_orders,
+                        position_size
+                    )
+
+            save_state(
+                state
+            )
+
+        except Exception as e:
+
+            log("")
+            log(
+                "=================================================="
+            )
+            log(
+                "LOOP ERROR"
+            )
+            log(
+                "TYPE:",
+                type(e).__name__
+            )
+            log(
+                "ERROR:",
+                str(e)
+            )
+            log(
+                "BOT WILL RETRY"
+            )
+            log(
+                "=================================================="
+            )
+
+            record(
+                "LOOP_ERROR",
+                symbol=SYMBOL,
+                runner_ip=RUNNER_IP,
+                message=(
+                    f"{type(e).__name__}: "
+                    f"{str(e)}"
+                )
+            )
+
+            time.sleep(
+                10
+            )
+
+        # API checks every 5 seconds.
+        # Candle/trading timeframe remains 1 MINUTE.
+        time.sleep(
+            POLL_SECONDS
+        )
+
+
+# ============================================================
+# SIGNAL HANDLER
+# ============================================================
+
+def stop_handler(
+    signum,
+    frame
+):
+
+    global STOP
+
+    STOP = True
+
+    log(
+        "BOT STOP SIGNAL RECEIVED"
+    )
+
+    record(
+        "BOT_STOPPED",
+        symbol=SYMBOL,
+        runner_ip=RUNNER_IP,
+        message=f"signal={signum}"
+    )
+
+
+# ============================================================
+# RUN
+# ============================================================
+
+if __name__ == "__main__":
+
+    signal.signal(
+        signal.SIGINT,
+        stop_handler
+    )
+
+    signal.signal(
+        signal.SIGTERM,
+        stop_handler
+    )
+
+    try:
+
+        main()
+
+    except Exception as e:
+
+        log("")
+        log(
+            "=================================================="
+        )
+        log(
+            "FATAL ERROR"
+        )
+        log(
+            "TYPE:",
+            type(e).__name__
+        )
+        log(
+            "ERROR:",
+            str(e)
+        )
+        log(
+            "=================================================="
+        )
+
+        record(
+            "FATAL_ERROR",
+            symbol=SYMBOL,
+            runner_ip=RUNNER_IP,
+            message=(
+                f"{type(e).__name__}: "
+                f"{str(e)}"
+            )
+        )
+
+        raise
