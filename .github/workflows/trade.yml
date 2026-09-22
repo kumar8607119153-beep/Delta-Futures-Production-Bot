@@ -38,8 +38,8 @@ jobs:
 
       - name: Run Delta Futures Production Bot
         env:
-          DELTA_API_KEY: ${{ secrets.DALTA_API_KEY }}
-          DELTA_API_SECRET: ${{ secrets.DALTA_API_SECRET }}
+          DELTA_API_KEY: ${{ secrets.OWNER_API_KEY }}
+          DELTA_API_SECRET: ${{ secrets.OWNER_API_SECRET }}
           DELTA_BASE_URL: ${{ secrets.DELTA_BASE_URL }}
         run: |
           python -u delta_futures_bot.py
