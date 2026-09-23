@@ -48,7 +48,7 @@ jobs:
 
       - name: Start production bot
         env:
-          DELTA_API_KEY: ${{ secrets.DELTA_API_KEY }}
-          DELTA_API_SECRET: ${{ secrets.DELTA_API_SECRET }}
+          DELTA_API_KEY: ${{ secrets.OWNER_API_KEY }}
+          DELTA_API_SECRET: ${{ secrets.OWNER_API_SECRET }}
           DELTA_BASE_URL: https://api.india.delta.exchange
         run: python -u delta_futures_bot.py
