@@ -1,0 +1,54 @@
+name: Delta Futures Production Bot
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Keep one long-running bot alive; do NOT start a new job every minute.
+    # GitHub cron is only used as an automatic restart mechanism.
+    - cron: '0 */5 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: delta-futures-production-bot
+  cancel-in-progress: true
+
+jobs:
+  trade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 295
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pandas python-dotenv
+
+      - name: Check public runner IP
+        run: |
+          echo '=========================================='
+          echo 'GITHUB RUNNER PUBLIC IP'
+          echo '=========================================='
+          curl -4 --fail --silent https://api.ipify.org
+          echo
+          echo '=========================================='
+
+      - name: Validate bot syntax
+        run: python -m py_compile delta_futures_bot.py
+
+      - name: Start production bot
+        env:
+          DELTA_API_KEY: ${{ secrets.DELTA_API_KEY }}
+          DELTA_API_SECRET: ${{ secrets.DELTA_API_SECRET }}
+          DELTA_BASE_URL: https://api.india.delta.exchange
+        run: python -u delta_futures_bot.py
