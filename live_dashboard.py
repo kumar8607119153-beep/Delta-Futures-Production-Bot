@@ -1347,7 +1347,7 @@ else:
 
 st.divider()
 
-st.header("📈 SUPERTREND — 5 MINUTE")
+st.header("📈 SUPERTREND — 1 MINUTE")
 
 c1, c2, c3 = st.columns(3)
 
