@@ -52,7 +52,7 @@ REMOTE_TRADING = (
 # entry limit farther/closer from the SuperTrend signal price.
 # BUY  = signal price - LIMIT_OFFSET
 # SELL = signal price + LIMIT_OFFSET
-LIMIT_OFFSET = int(os.getenv("LIMIT_OFFSET", "150"))
+LIMIT_OFFSET = int(os.getenv("LIMIT_OFFSET", "20"))
 
 DEFAULT_BUY_OFFSET = -abs(LIMIT_OFFSET)
 DEFAULT_SELL_OFFSET = abs(LIMIT_OFFSET)
