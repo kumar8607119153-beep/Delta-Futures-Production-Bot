@@ -49,11 +49,11 @@ REMOTE_TRADING = (
 # ============================================================
 
 DEFAULT_BUY_OFFSET = int(
-    os.getenv("BUY_OFFSET", "-150")
+    os.getenv("BUY_OFFSET", "-10")
 )
 
 DEFAULT_SELL_OFFSET = int(
-    os.getenv("SELL_OFFSET", "150")
+    os.getenv("SELL_OFFSET", "10")
 )
 
 # ============================================================
