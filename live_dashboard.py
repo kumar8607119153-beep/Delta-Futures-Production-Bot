@@ -49,11 +49,11 @@ REMOTE_TRADING = (
 # ============================================================
 
 DEFAULT_BUY_OFFSET = int(
-    os.getenv("BUY_OFFSET", "-150")
+    os.getenv("BUY_OFFSET", "-20")
 )
 
 DEFAULT_SELL_OFFSET = int(
-    os.getenv("SELL_OFFSET", "150")
+    os.getenv("SELL_OFFSET", "20")
 )
 
 # ============================================================
@@ -92,7 +92,7 @@ TARGET_3 = int(os.getenv("TARGET_3", "900"))
 # ============================================================
 
 st.set_page_config(
-    page_title="Sanjay Rana Real Trading",
+    page_title="Sanjay Rana Real Trading 8930814389",
     page_icon="📈",
     layout="wide"
 )
