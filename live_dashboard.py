@@ -2692,7 +2692,7 @@ const layout = {{
     color: "#9ca3af",
     fixedrange: false,
     // Allow horizontal drag/swipe through the existing candle history.
-    // Keep the original full 80-candle viewport and chart appearance.
+    // Keep the original full 800-candle viewport and chart appearance.
     range: [0, Math.max(D.times.length - 1, 0)]
   }},
   yaxis: {{
