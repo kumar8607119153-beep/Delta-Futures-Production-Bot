@@ -559,7 +559,7 @@ class DeltaAPI:
 
         start = (
             end
-            - (500 * CANDLE_SECONDS)
+            - (5000 * CANDLE_SECONDS)
         )
 
         return self.request(
