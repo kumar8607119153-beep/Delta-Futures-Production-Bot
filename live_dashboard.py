@@ -1677,7 +1677,7 @@ st.write(
 # ============================================================
 
 GRID_STEP = int(os.getenv("GRID_STEP", "300"))
-GRID_CHUNK_CONTRACTS = int(os.getenv("GRID_CHUNK_CONTRACTS", "10"))
+GRID_CHUNK_CONTRACTS = int(os.getenv("GRID_CHUNK_CONTRACTS", "1"))
 GRID_RANGE_POINTS = int(os.getenv("GRID_RANGE_POINTS", "4000"))
 
 # Every grid entry is a separate basket. 10 contracts = 0.010 BTC.
