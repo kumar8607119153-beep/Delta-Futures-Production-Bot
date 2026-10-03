@@ -1524,7 +1524,92 @@ else:
         last_candle["time"]
     )
 
+# ============================================================
+# LIVE PRICE vs CURRENT SUPERTREND SIGNAL
+# ============================================================
 
+try:
+    _signal_live_diff = (
+        float(live_price) - float(signal_entry_price)
+    )
+except Exception:
+    _signal_live_diff = 0.0
+
+_signal_live_abs = abs(_signal_live_diff)
+
+if _signal_live_diff > 0:
+    _diff_color = "#22c55e"
+    _diff_bg = (
+        "linear-gradient(135deg,#052e16,#166534)"
+    )
+    _diff_icon = "🟢"
+    _diff_word = "ABOVE"
+
+elif _signal_live_diff < 0:
+    _diff_color = "#ef4444"
+    _diff_bg = (
+        "linear-gradient(135deg,#450a0a,#991b1b)"
+    )
+    _diff_icon = "🔴"
+    _diff_word = "BELOW"
+
+else:
+    _diff_color = "#facc15"
+    _diff_bg = (
+        "linear-gradient(135deg,#422006,#a16207)"
+    )
+    _diff_icon = "🟡"
+    _diff_word = "MATCH"
+
+st.markdown(
+    f"""
+    <div style="
+        margin:14px 0 18px 0;
+        padding:18px 20px;
+        border-radius:18px;
+        background:{_diff_bg};
+        border:2px solid {_diff_color};
+        box-shadow:0 0 22px rgba(0,0,0,.28);
+        text-align:center;
+    ">
+
+        <div style="
+            font-size:1.05rem;
+            font-weight:900;
+            color:#ffffff;
+            letter-spacing:.4px;
+            margin-bottom:6px;
+        ">
+            {_diff_icon}
+            LIVE PRICE vs CURRENT SUPERTREND SIGNAL
+        </div>
+
+        <div style="
+            font-size:clamp(28px,5vw,46px);
+            line-height:1.05;
+            font-weight:1000;
+            color:{_diff_color};
+        ">
+            {_signal_live_abs:,.2f} POINTS
+        </div>
+
+        <div style="
+            margin-top:8px;
+            font-size:1.05rem;
+            font-weight:800;
+            color:#f8fafc;
+        ">
+            LIVE: {show_price(live_price)}
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            SIGNAL: {show_price(signal_entry_price)}
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            {_diff_word}: {_signal_live_diff:+,.2f}
+        </div>
+
+    </div>
+    """,
+    unsafe_allow_html=True,
+    )
 # ============================================================
 # PREVIOUS ENTRY
 # ============================================================
