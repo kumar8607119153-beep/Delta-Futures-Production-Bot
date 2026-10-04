@@ -1792,7 +1792,7 @@ st.subheader("🎯 CURRENT ENTRY")
 if signal_direction == "BUY":
 
     st.success(
-        f"🟢 BUY | "
+        f"🟢🚦🔉 BUY | "
         f"ENTRY: {show_price(signal_entry_price)} | "
         f"SUPERTREND: {show_price(signal_supertrend)}"
     )
@@ -1800,7 +1800,7 @@ if signal_direction == "BUY":
 elif signal_direction == "SELL":
 
     st.error(
-        f"🔴 SELL | "
+        f"🔴🚦🔉 SELL | "
         f"ENTRY: {show_price(signal_entry_price)} | "
         f"SUPERTREND: {show_price(signal_supertrend)}"
     )
