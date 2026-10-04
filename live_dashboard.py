@@ -1991,14 +1991,14 @@ setInterval(updateCandleCountdown, 250);
 # ============================================================
 
 _live_entry_difference = live_price - signal_entry_price
-_live_entry_points = abs(_live_entry_difference)
+_live_entry_points = _live_entry_difference
 
 if _live_entry_difference < 0:
     _live_entry_position = "BELOW ENTRY"
-    _live_entry_color = "#16a34a"
+    _live_entry_color = "#dc2626"
 elif _live_entry_difference > 0:
     _live_entry_position = "ABOVE ENTRY"
-    _live_entry_color = "#dc2626"
+    _live_entry_color = "#16a34a"
 else:
     _live_entry_position = "AT ENTRY"
     _live_entry_color = "#eab308"
@@ -2023,7 +2023,7 @@ st.markdown(
             LIVE PRICE: <span style="color:#38bdf8;">{live_price:,.2f}</span>
         </div>
         <div style="font-size:clamp(38px,10vw,62px);font-weight:1000;color:{_live_entry_color};line-height:1;margin:16px 0 8px;">
-            {_live_entry_points:,.2f}
+            {_live_entry_points:+,.2f}
         </div>
         <div style="font-size:clamp(18px,4.5vw,25px);font-weight:1000;color:{_live_entry_color};">
             POINTS {_live_entry_position}
