@@ -3560,18 +3560,7 @@ buyST.setData(b); sellST.setData(ss);
 
 // SL/TSL line + price on the LEFT price scale.
 // The line color follows the active SuperTrend direction.
-const tslSeries = chart.addLineSeries({{
-  color:D.tsl_color,lineWidth:2,priceLineVisible:false,lastValueVisible:true,
-  crosshairMarkerVisible:false,
-  priceFormat:{{type:'price',precision:2,minMove:0.01}}
-}});
-if(D.times.length) {{
-  const tslValue=Number(D.tsl_price);
-  tslSeries.setData([
-    {{time:epoch(D.times[0]),value:tslValue}},
-    {{time:epoch(D.times[D.times.length-1]),value:tslValue}}
-  ]);
-}}
+
 
 // Show ONE exact current SuperTrend price on the LEFT price scale.
 // This is the actual latest SUPERTREND value, never the live price and never
