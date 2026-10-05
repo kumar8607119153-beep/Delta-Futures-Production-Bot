@@ -3570,7 +3570,7 @@ for(let i = 0; i < D.times.length; i++) {{
         color: currentColor,
         lineWidth: 3,  // लाइन को मोटा रखने के लिए
         priceLineVisible: false,
-        lastValueVisible: true,
+        lastValueVisible: false,
         crosshairMarkerVisible: false,
         priceFormat: {{type: 'price', precision: 2, minMove: 0.01}}
       }});
