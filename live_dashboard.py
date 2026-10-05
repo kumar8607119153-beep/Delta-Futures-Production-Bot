@@ -3541,22 +3541,25 @@ candles.setData(bars);
 // engine for each completed 1H candle. Do NOT copy the previous point into
 // the opposite colour series. That artificial point was making a false
 // diagonal/duplicate-looking line at every BUY/SELL reversal.
-const buyST = chart.addLineSeries({{
-  color:'#22c55e',lineWidth:2,priceLineVisible:false,lastValueVisible:true,
-  crosshairMarkerVisible:false,priceFormat:{{type:'price',precision:2,minMove:0.01}}
-}});
-const sellST = chart.addLineSeries({{
-  color:'#ef5350',lineWidth:2,priceLineVisible:false,lastValueVisible:true,
-  crosshairMarkerVisible:false,
-  priceFormat:{{type:'price',precision:2,minMove:0.01}}
-}});
-const b=[], ss=[];
-for(let i=0;i<D.times.length;i++) {{
-  const t=epoch(D.times[i]);
-  if(D.st_buy[i]!=null) b.push({{time:t,value:Number(D.st_buy[i])}});
-  if(D.st_sell[i]!=null) ss.push({{time:t,value:Number(D.st_sell[i])}});
-}}
-buyST.setData(b); sellST.setData(ss);
+// सिंगल कंटीन्यूअस सुपरट्रेंड लाइन (बिना किसी गैप या तिरछी लाइन के)
+const superTrendSeries = chart.addLineSeries({
+  color: '#f59e0b', // सुंदर एम्बर/ऑरेंज रंग जो हर कैंडल पर साफ दिखे
+  lineWidth: 2,
+  priceLineVisible: false,
+  lastValueVisible: true,
+  crosshairMarkerVisible: false,
+  priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
+});
+
+const stData = [];
+for(let i = 0; i < D.times.length; i++) {
+  if(D.st_buy[i] != null) {
+    stData.push({ time: epoch(D.times[i]), value: Number(D.st_buy[i]) });
+  } else if(D.st_sell[i] != null) {
+    stData.push({ time: epoch(D.times[i]), value: Number(D.st_sell[i]) });
+  }
+}
+superTrendSeries.setData(stData);
 
 // SL/TSL line + price on the LEFT price scale.
 // The line color follows the active SuperTrend direction.
