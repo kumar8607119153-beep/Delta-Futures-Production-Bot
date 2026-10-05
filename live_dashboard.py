@@ -3542,8 +3542,7 @@ candles.setData(bars);
 // the opposite colour series. That artificial point was making a false
 // diagonal/duplicate-looking line at every BUY/SELL reversal.
 // सिंगल कंटीन्यूअस सुपरट्रेंड लाइन (बिना किसी गैप या तिरछी लाइन के)
-# इस ब्लॉक को अपने कोड में लगाएं (इसमें डबल ब्रेसेज़ {{ }} सही से लगे हैं)
-supertrend_js = """
+// इस कोड को अपनी f-string के अंदर (जावास्क्रिप्ट वाले हिस्से में) रख लें:
 let currentSeries = null;
 let currentColor = null;
 let currentData = [];
@@ -3569,7 +3568,7 @@ for(let i = 0; i < D.times.length; i++) {{
       currentData = [];
       currentSeries = chart.addLineSeries({{
         color: currentColor,
-        lineWidth: 3,  // लाइन को मोटा करने के लिए (आप 3 या 4 रख सकते हैं)
+        lineWidth: 3,  // लाइन को मोटा रखने के लिए
         priceLineVisible: false,
         lastValueVisible: true,
         crosshairMarkerVisible: false,
@@ -3582,7 +3581,7 @@ for(let i = 0; i < D.times.length; i++) {{
 if(currentSeries && currentData.length > 0) {{
   currentSeries.setData(currentData);
 }}
-"""
+
 
 
 
