@@ -3614,30 +3614,22 @@ for(const L of D.grid_lines) {{
 candles.createPriceLine({{price:Number(D.current_price),color:'#60a5fa',lineWidth:2,lineStyle:LC.LineStyle.Dashed,axisLabelVisible:true,title:'LIVE'}});
 
 const key='sanjay_rana_1h_tv_range_v2';
-
 let restored=false;
-try{
-  localStorage.removeItem('sanjay_rana_1h_tv_range_v1');
-}catch(e){}
 
-if(!restored){
-  const total = D.times.length;
-  chart.timeScale().setVisibleLogicalRange({
-    from: Math.max(0, total - 80),
-    to: total + 5
-  });
-}
+try{{
+  localStorage.removeItem('sanjay_rana_1h_tv_range_v1');
+  localStorage.removeItem('sanjay_rana_1h_tv_range_v2');
+}}catch(e){{}}
+
+const total = D.times.length;
+
+chart.timeScale().setVisibleLogicalRange({{
+  from: Math.max(0, total - 80),
+  to: total + 5
+}});
 
 let saveTimer;
-function saveRange(){
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{
-    try{
-      const r=chart.timeScale().getVisibleRange();
-      if(r) localStorage.setItem(key,JSON.stringify(r));
-    }catch(e){}
-  },150);
-}
+function saveRange(){{clearTimeout(saveTimer);saveTimer=setTimeout(()=>{{try{{const r=chart.timeScale().getVisibleRange();if(r) localStorage.setItem(key,JSON.stringify(r));}}catch(e){{}}}},150);}}
 chart.timeScale().subscribeVisibleTimeRangeChange(saveRange);
 window.addEventListener('resize',()=>chart.applyOptions({{width:root.clientWidth,height:root.clientHeight}}));
 </script>
