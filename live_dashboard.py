@@ -3529,7 +3529,7 @@ const chart = LC.createChart(root, {{
 
 const candles = chart.addCandlestickSeries({{
   upColor:'#26a69a', downColor:'#ef5350', borderUpColor:'#26a69a', borderDownColor:'#ef5350',
-  wickUpColor:'#26a69a', wickDownColor:'#ef5350', priceLineVisible:false, lastValueVisible:true
+  wickUpColor:'#26a69a', wickDownColor:'#ef5350', priceLineVisible:false, lastValueVisible:false
 }});
 function epoch(t) {{ return Math.floor(Date.parse(t.replace(' ','T') + ':00+05:30')/1000); }}
 const bars=[];
