@@ -3543,11 +3543,11 @@ candles.setData(bars);
 // diagonal/duplicate-looking line at every BUY/SELL reversal.
 const buyST = chart.addLineSeries({{
   color:'#22c55e',lineWidth:2,priceLineVisible:false,lastValueVisible:true,
-  crosshairMarkerVisible:false,priceScaleId:'left',priceFormat:{{type:'price',precision:2,minMove:0.01}}
+  crosshairMarkerVisible:false,priceFormat:{{type:'price',precision:2,minMove:0.01}}
 }});
 const sellST = chart.addLineSeries({{
   color:'#ef5350',lineWidth:2,priceLineVisible:false,lastValueVisible:true,
-  crosshairMarkerVisible:false,priceScaleId:'left',
+  crosshairMarkerVisible:false,
   priceFormat:{{type:'price',precision:2,minMove:0.01}}
 }});
 const b=[], ss=[];
@@ -3562,7 +3562,7 @@ buyST.setData(b); sellST.setData(ss);
 // The line color follows the active SuperTrend direction.
 const tslSeries = chart.addLineSeries({{
   color:D.tsl_color,lineWidth:2,priceLineVisible:false,lastValueVisible:true,
-  crosshairMarkerVisible:false,priceScaleId:'left',
+  crosshairMarkerVisible:false,
   priceFormat:{{type:'price',precision:2,minMove:0.01}}
 }});
 if(D.times.length) {{
