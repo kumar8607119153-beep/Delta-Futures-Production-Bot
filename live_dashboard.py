@@ -3393,7 +3393,7 @@ _chart_signal_text = []
 _chart_signal_color = []
 # ONLY TRUE SuperTrend direction-change candles get a marker.
 # Entry/re-entry/target orders NEVER create markers or dots.
-for _, row in signal_rows.drop_duplicates(subset=["time"]).tail(5).iterrows():
+for _, row in signal_rows.drop_duplicates(subset=["time"]).tail(1).iterrows():
     _sig = str(row.get("SIGNAL", "")).upper().strip()
     if _sig not in {"BUY", "SELL"}:
         continue
