@@ -3542,24 +3542,48 @@ candles.setData(bars);
 // the opposite colour series. That artificial point was making a false
 // diagonal/duplicate-looking line at every BUY/SELL reversal.
 // सिंगल कंटीन्यूअस सुपरट्रेंड लाइन (बिना किसी गैप या तिरछी लाइन के)
-const superTrendSeries = chart.addLineSeries({{
-  color: '#f59e0b',
-  lineWidth: 2,
-  priceLineVisible: false,
-  lastValueVisible: true,
-  crosshairMarkerVisible: false,
-  priceFormat: {{type: 'price', precision: 2, minMove: 0.01}}
-}});
+# इस ब्लॉक को अपने कोड में लगाएं (इसमें डबल ब्रेसेज़ {{ }} सही से लगे हैं)
+supertrend_js = """
+let currentSeries = null;
+let currentColor = null;
+let currentData = [];
 
-const stData = [];
 for(let i = 0; i < D.times.length; i++) {{
+  let val = null;
+  let col = null;
+  
   if(D.st_buy[i] != null) {{
-    stData.push({{time: epoch(D.times[i]), value: Number(D.st_buy[i])}});
+    val = Number(D.st_buy[i]);
+    col = '#22c55e'; // Green for Buy
   }} else if(D.st_sell[i] != null) {{
-    stData.push({{time: epoch(D.times[i]), value: Number(D.st_sell[i])}});
+    val = Number(D.st_sell[i]);
+    col = '#ef5350'; // Red for Sell
+  }}
+  
+  if(val != null) {{
+    if(currentColor !== col) {{
+      if(currentSeries && currentData.length > 0) {{
+        currentSeries.setData(currentData);
+      }}
+      currentColor = col;
+      currentData = [];
+      currentSeries = chart.addLineSeries({{
+        color: currentColor,
+        lineWidth: 3,  // लाइन को मोटा करने के लिए (आप 3 या 4 रख सकते हैं)
+        priceLineVisible: false,
+        lastValueVisible: true,
+        crosshairMarkerVisible: false,
+        priceFormat: {{type: 'price', precision: 2, minMove: 0.01}}
+      }});
+    }}
+    currentData.push({{time: epoch(D.times[i]), value: val}});
   }}
 }}
-superTrendSeries.setData(stData);
+if(currentSeries && currentData.length > 0) {{
+  currentSeries.setData(currentData);
+}}
+"""
+
 
 
 // SL/TSL line + price on the LEFT price scale.
