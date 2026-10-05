@@ -3542,24 +3542,25 @@ candles.setData(bars);
 // the opposite colour series. That artificial point was making a false
 // diagonal/duplicate-looking line at every BUY/SELL reversal.
 // सिंगल कंटीन्यूअस सुपरट्रेंड लाइन (बिना किसी गैप या तिरछी लाइन के)
-const superTrendSeries = chart.addLineSeries({
-  color: '#f59e0b', // सुंदर एम्बर/ऑरेंज रंग जो हर कैंडल पर साफ दिखे
+const superTrendSeries = chart.addLineSeries({{
+  color: '#f59e0b',
   lineWidth: 2,
   priceLineVisible: false,
   lastValueVisible: true,
   crosshairMarkerVisible: false,
-  priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
-});
+  priceFormat: {{type: 'price', precision: 2, minMove: 0.01}}
+}});
 
 const stData = [];
-for(let i = 0; i < D.times.length; i++) {
-  if(D.st_buy[i] != null) {
-    stData.push({ time: epoch(D.times[i]), value: Number(D.st_buy[i]) });
-  } else if(D.st_sell[i] != null) {
-    stData.push({ time: epoch(D.times[i]), value: Number(D.st_sell[i]) });
-  }
-}
+for(let i = 0; i < D.times.length; i++) {{
+  if(D.st_buy[i] != null) {{
+    stData.push({{time: epoch(D.times[i]), value: Number(D.st_buy[i])}});
+  }} else if(D.st_sell[i] != null) {{
+    stData.push({{time: epoch(D.times[i]), value: Number(D.st_sell[i])}});
+  }}
+}}
 superTrendSeries.setData(stData);
+
 
 // SL/TSL line + price on the LEFT price scale.
 // The line color follows the active SuperTrend direction.
