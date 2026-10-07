@@ -78,7 +78,7 @@ DEFAULT_SELL_OFFSET = int(
 # 0.002 BTC = 2 contracts per grid order
 # 0.003 BTC = 3 contracts per grid order
 # ============================================================
-CONTRACT_BTC = 0.002
+CONTRACT_BTC = 0.001
 
 # ============================================================
 # TWO REAL ACCOUNTS — INDEPENDENT SETTINGS / VIEW SELECTOR
@@ -108,7 +108,7 @@ with _qc1:
         "ACCOUNT 1 — GRID QUANTITY PER ORDER (BTC)",
         min_value=0.002,
         value=float(_ACCOUNT1_DEFAULT_QTY),
-        step=0.002,
+        step=0.001,
         format="%.3f",
         key="account1_grid_order_qty_setting",
     )
