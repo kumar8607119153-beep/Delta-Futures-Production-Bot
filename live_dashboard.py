@@ -95,7 +95,7 @@ ACCOUNT_VIEW = st.radio(
     key="account_record_view",
 )
 
-_ACCOUNT1_DEFAULT_QTY = float(os.getenv("ACCOUNT1_GRID_ORDER_QTY", os.getenv("GRID_ORDER_QTY", "0.001")))
+_ACCOUNT1_DEFAULT_QTY = float(os.getenv("ACCOUNT1_GRID_ORDER_QTY", os.getenv("GRID_ORDER_QTY", "0.002")))
 _ACCOUNT2_DEFAULT_QTY = float(os.getenv("ACCOUNT2_GRID_ORDER_QTY", os.getenv("GRID_ORDER_QTY", "0.001")))
 if _ACCOUNT1_DEFAULT_QTY <= 0:
     _ACCOUNT1_DEFAULT_QTY = 0.002
