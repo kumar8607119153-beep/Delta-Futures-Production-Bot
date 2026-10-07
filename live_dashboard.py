@@ -63,11 +63,11 @@ REAL_MARKET_ONLY = True
 # ============================================================
 
 DEFAULT_BUY_OFFSET = int(
-    os.getenv("BUY_OFFSET", "-20")
+    os.getenv("BUY_OFFSET", "0")
 )
 
 DEFAULT_SELL_OFFSET = int(
-    os.getenv("SELL_OFFSET", "20")
+    os.getenv("SELL_OFFSET", "0")
 )
 
 # ============================================================
@@ -108,7 +108,7 @@ with _qc1:
         "ACCOUNT 1 — GRID QUANTITY PER ORDER (BTC)",
         min_value=0.002,
         value=float(_ACCOUNT1_DEFAULT_QTY),
-        step=0.001,
+        step=0.002,
         format="%.3f",
         key="account1_grid_order_qty_setting",
     )
