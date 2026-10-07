@@ -78,7 +78,7 @@ DEFAULT_SELL_OFFSET = int(
 # 0.002 BTC = 2 contracts per grid order
 # 0.003 BTC = 3 contracts per grid order
 # ============================================================
-CONTRACT_BTC = 0.001
+CONTRACT_BTC = 0.002
 
 # ============================================================
 # TWO REAL ACCOUNTS — INDEPENDENT SETTINGS / VIEW SELECTOR
@@ -106,7 +106,7 @@ _qc1, _qc2 = st.columns(2)
 with _qc1:
     ACCOUNT1_GRID_QTY = st.number_input(
         "ACCOUNT 1 — GRID QUANTITY PER ORDER (BTC)",
-        min_value=0.001,
+        min_value=0.002,
         value=float(_ACCOUNT1_DEFAULT_QTY),
         step=0.001,
         format="%.3f",
@@ -141,10 +141,20 @@ DEFAULT_LIMIT_TIMEOUT = int(
     os.getenv("LIMIT_TIMEOUT", "6000000")
 )
 
-TARGET_1 = int(os.getenv("TARGET_1", "200"))
+TARGET_1 = int(os.getenv("TARGET_1", "300"))
 TARGET_2 = int(os.getenv("TARGET_2", "600"))
 TARGET_3 = int(os.getenv("TARGET_3", "900"))
-
+TARGET_4 = int(os.getenv("TARGET_4", "1200"))
+TARGET_5 = int(os.getenv("TARGET_5", "1500"))
+TARGET_6 = int(os.getenv("TARGET_6", "1800"))
+TARGET_7 = int(os.getenv("TARGET_7", "2100"))
+TARGET_8 = int(os.getenv("TARGET_8", "2400"))
+TARGET_9 = int(os.getenv("TARGET_9", "2700"))
+TARGET_10 = int(os.getenv("TARGET_10", "3000"))
+TARGET_11 = int(os.getenv("TARGET_11", "3300"))
+TARGET_12 = int(os.getenv("TARGET_12", "3600"))
+TARGET_13 = int(os.getenv("TARGET_13", "3900"))
+TARGET_14 = int(os.getenv("TARGET_14", "4200"))
 
 # ============================================================
 # PAGE
