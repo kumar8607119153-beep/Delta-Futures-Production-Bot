@@ -4739,7 +4739,7 @@ function drawServerOrderLines() {
       color: '#d1d4dc',
       lineWidth: 2,
       lineStyle: LightweightCharts.LineStyle.Dashed,
-      axisLabelVisible: true,
+      axisLabelVisible: false ,
       title: 'LIVE'
     });
     previousLivePrice = null;
