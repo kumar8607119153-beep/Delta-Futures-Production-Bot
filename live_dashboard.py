@@ -4739,11 +4739,11 @@ function drawServerOrderLines() {
       color: '#d1d4dc',
       lineWidth: 2,
       lineStyle: LightweightCharts.LineStyle.Dashed,
-      axisLabelVisible: false ,
+      axisLabelVisible: true ,
       title: 'LIVE'
     });
     previousLivePrice = null;
-    updateLivePrice(live, true);
+    updateLivePrice(live, false);
   }
 }
 
