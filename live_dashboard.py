@@ -4743,7 +4743,7 @@ function drawServerOrderLines() {
       title: 'LIVE'
     });
     previousLivePrice = null;
-    updateLivePrice(live, false);
+    updateLivePrice(live, true);
   }
 }
 
