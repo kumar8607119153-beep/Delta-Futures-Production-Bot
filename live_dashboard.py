@@ -83,9 +83,9 @@ CONTRACT_BTC = 0.001
 # ============================================================
 # OWNER ACCOUNT — SINGLE ACCOUNT SETTINGS
 # ============================================================
-OWNER_DEFAULT_QTY = float(os.getenv("GRID_ORDER_QTY", "0.002"))
+OWNER_DEFAULT_QTY = float(os.getenv("GRID_ORDER_QTY", "0.001"))
 if OWNER_DEFAULT_QTY <= 0:
-    OWNER_DEFAULT_QTY = 0.002
+    OWNER_DEFAULT_QTY = 0.001
 
 OWNER_GRID_QTY = st.number_input(
     "👑 OWNER ACCOUNT — GRID QUANTITY PER ORDER (BTC)",
@@ -140,20 +140,31 @@ DEFAULT_LIMIT_TIMEOUT = int(
     os.getenv("LIMIT_TIMEOUT", "6000000")
 )
 
-TARGET_1 = int(os.getenv("TARGET_1", "300"))
-TARGET_2 = int(os.getenv("TARGET_2", "600"))
-TARGET_3 = int(os.getenv("TARGET_3", "900"))
-TARGET_4 = int(os.getenv("TARGET_4", "1200"))
-TARGET_5 = int(os.getenv("TARGET_5", "1500"))
-TARGET_6 = int(os.getenv("TARGET_6", "1800"))
-TARGET_7 = int(os.getenv("TARGET_7", "2100"))
-TARGET_8 = int(os.getenv("TARGET_8", "2400"))
-TARGET_9 = int(os.getenv("TARGET_9", "2700"))
-TARGET_10 = int(os.getenv("TARGET_10", "3000"))
-TARGET_11 = int(os.getenv("TARGET_11", "3300"))
-TARGET_12 = int(os.getenv("TARGET_12", "3600"))
-TARGET_13 = int(os.getenv("TARGET_13", "3900"))
-TARGET_14 = int(os.getenv("TARGET_14", "4200"))
+TARGET_1 = int(os.getenv("TARGET_1", "100"))
+TARGET_2 = int(os.getenv("TARGET_2", "200"))
+TARGET_3 = int(os.getenv("TARGET_3", "300"))
+TARGET_4 = int(os.getenv("TARGET_4", "400"))
+TARGET_5 = int(os.getenv("TARGET_5", "500"))
+TARGET_6 = int(os.getenv("TARGET_6", "600"))
+TARGET_7 = int(os.getenv("TARGET_7", "700"))
+TARGET_8 = int(os.getenv("TARGET_8", "800"))
+TARGET_9 = int(os.getenv("TARGET_9", "900"))
+TARGET_10 = int(os.getenv("TARGET_10", "1000"))
+TARGET_11 = int(os.getenv("TARGET_11", "1100"))
+TARGET_12 = int(os.getenv("TARGET_12", "1200"))
+TARGET_13 = int(os.getenv("TARGET_13", "1300"))
+TARGET_14 = int(os.getenv("TARGET_14", "1400"))
+TARGET_15 = int(os.getenv("TARGET_15", "1500"))
+TARGET_16 = int(os.getenv("TARGET_16", "1600"))
+TARGET_17 = int(os.getenv("TARGET_17", "1700"))
+TARGET_18 = int(os.getenv("TARGET_18", "1800"))
+TARGET_19 = int(os.getenv("TARGET_19", "1900"))
+TARGET_20 = int(os.getenv("TARGET_20", "2000"))
+TARGET_21 = int(os.getenv("TARGET_21", "2100"))
+TARGET_22 = int(os.getenv("TARGET_22", "2200"))
+TARGET_23 = int(os.getenv("TARGET_23", "2300"))
+TARGET_24 = int(os.getenv("TARGET_24", "2400"))
+TARGET_25 = int(os.getenv("TARGET_25", "2500"))
 
 # ============================================================
 # PAGE
